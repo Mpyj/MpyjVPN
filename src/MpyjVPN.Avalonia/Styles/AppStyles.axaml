@@ -1,0 +1,103 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ==================== GLOBAL FONT ==================== -->
+    <!-- استفاده از فونت Segoe UI Emoji به عنوان فونت اصلی -->
+    
+    <Style Selector="Window">
+        <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter/Assets#Inter, Segoe UI Emoji, Segoe UI"/>
+    </Style>
+    
+    <Style Selector="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI Emoji, Segoe UI, Arial"/>
+    </Style>
+    
+    <Style Selector="Button">
+        <Setter Property="FontFamily" Value="Segoe UI Emoji, Segoe UI, Arial"/>
+    </Style>
+    
+    <Style Selector="ComboBox">
+        <Setter Property="FontFamily" Value="Segoe UI Emoji, Segoe UI, Arial"/>
+    </Style>
+    
+    <Style Selector="TextBox">
+        <Setter Property="FontFamily" Value="Segoe UI Emoji, Segoe UI, Arial"/>
+    </Style>
+    
+    <!-- ==================== NAV ITEM ==================== -->
+    <Style Selector="Button.NavItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="{DynamicResource TextDimBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Padding" Value="14,10"/>
+        <Setter Property="CornerRadius" Value="10"/>
+        <Setter Property="FontSize" Value="13"/>
+    </Style>
+    
+    <Style Selector="Button.NavItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.NavItem.Active">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource CyanBrush}"/>
+    </Style>
+    
+    <!-- ==================== GLASS CARD ==================== -->
+    <Style Selector="Border.GlassCard">
+        <Setter Property="Background" Value="{DynamicResource SurfaceBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding" Value="24"/>
+    </Style>
+    
+    <!-- ==================== STAT BOX ==================== -->
+    <Style Selector="Border.StatBox">
+        <Setter Property="Background" Value="{DynamicResource InputBgBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="16"/>
+    </Style>
+    
+    <!-- ==================== MODE BUTTON ==================== -->
+    <Style Selector="Button.ModeBtn">
+        <Setter Property="Background" Value="{DynamicResource InputBgBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+    
+    <Style Selector="Button.ModeBtn:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource InputBgBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource CyanBrush}"/>
+    </Style>
+    
+    <Style Selector="Button.ModeBtn.Active">
+        <Setter Property="BorderBrush" Value="{DynamicResource CyanBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource Surface2Brush}"/>
+    </Style>
+    
+    <!-- ==================== PULSE ANIMATION ==================== -->
+    <Style Selector="Ellipse.pulse">
+        <Style.Animations>
+            <Animation Duration="0:0:1.5" IterationCount="INFINITE">
+                <KeyFrame Cue="0%">
+                    <Setter Property="Opacity" Value="1"/>
+                </KeyFrame>
+                <KeyFrame Cue="50%">
+                    <Setter Property="Opacity" Value="0.3"/>
+                </KeyFrame>
+                <KeyFrame Cue="100%">
+                    <Setter Property="Opacity" Value="1"/>
+                </KeyFrame>
+            </Animation>
+        </Style.Animations>
+    </Style>
+
+</Styles>

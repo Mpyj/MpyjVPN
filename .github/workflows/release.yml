@@ -1,0 +1,244 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version (e.g., 1.0.0)'
+        required: true
+        default: '1.0.0'
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ==================== RELEASE WINDOWS ====================
+  release-windows:
+    name: 🪟 Release Windows (x64)
+    runs-on: windows-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 📤 Publish CLI
+        run: dotnet publish src/MpyjVPN.CLI -c Release -r win-x64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: dotnet publish src/MpyjVPN.Avalonia -c Release -r win-x64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files
+        shell: pwsh
+        run: |
+          Copy-Item "publish/cli/MpyjCLI.exe" "publish/" -Force -ErrorAction SilentlyContinue
+          Copy-Item "publish/cli/MpyjCLI.dll" "publish/" -Force -ErrorAction SilentlyContinue
+          Copy-Item "publish/cli/MpyjCore.dll" "publish/" -Force -ErrorAction SilentlyContinue
+          Copy-Item "publish/cli/MpyjCLI.deps.json" "publish/" -Force -ErrorAction SilentlyContinue
+          Copy-Item "publish/cli/MpyjCLI.runtimeconfig.json" "publish/" -Force -ErrorAction SilentlyContinue
+      
+      - name: 📁 Create ZIP
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          Compress-Archive -Path "publish/*" -DestinationPath "MpyjVPN-v$version-Windows-x64.zip" -Force
+      
+      - name: 📤 Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MpyjVPN-*.zip
+          tag_name: ${{ github.ref_name }}
+          name: MpyjVPN ${{ github.ref_name }}
+          body: |
+            ## 🎉 MpyjVPN ${{ github.ref_name }}
+            
+            ### 📦 Downloads
+            - 🪟 **Windows x64:** `MpyjVPN-*-Windows-x64.zip`
+            - 🐧 **Linux x64:** `MpyjVPN-*-Linux-x64.tar.gz`
+            - 🐧 **Linux ARM64:** `MpyjVPN-*-Linux-ARM64.tar.gz`
+            - 🍎 **macOS x64:** `MpyjVPN-*-macOS-x64.tar.gz`
+            
+            ### 📋 Changelog
+            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/docs/CHANGELOG.md)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==================== RELEASE LINUX ====================
+  release-linux:
+    name: 🐧 Release Linux (x64)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 📤 Publish CLI
+        run: dotnet publish src/MpyjVPN.CLI -c Release -r linux-x64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-x64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files
+        run: |
+          cp -f publish/cli/MpyjCLI publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCore.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.deps.json publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.runtimeconfig.json publish 2>/dev/null || true
+      
+      - name: 🔐 Make executable
+        run: |
+          chmod +x publish/MpyjVPN.Avalonia 2>/dev/null || true
+          chmod +x publish/MpyjCLI 2>/dev/null || true
+      
+      - name: 📁 Create TAR.GZ
+        run: |
+          version="${{ github.ref_name }}"
+          version="${version#v}"
+          cd publish
+          tar -czvf "../MpyjVPN-v${version}-Linux-x64.tar.gz" *
+          cd ..
+      
+      - name: 📤 Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MpyjVPN-*.tar.gz
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==================== RELEASE LINUX ARM64 ====================
+  release-linux-arm64:
+    name: 🐧 Release Linux (ARM64)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 📤 Publish CLI
+        run: dotnet publish src/MpyjVPN.CLI -c Release -r linux-arm64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-arm64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files
+        run: |
+          cp -f publish/cli/MpyjCLI publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCore.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.deps.json publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.runtimeconfig.json publish 2>/dev/null || true
+      
+      - name: 🔐 Make executable
+        run: |
+          chmod +x publish/MpyjVPN.Avalonia 2>/dev/null || true
+          chmod +x publish/MpyjCLI 2>/dev/null || true
+      
+      - name: 📁 Create TAR.GZ
+        run: |
+          version="${{ github.ref_name }}"
+          version="${version#v}"
+          cd publish
+          tar -czvf "../MpyjVPN-v${version}-Linux-ARM64.tar.gz" *
+          cd ..
+      
+      - name: 📤 Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MpyjVPN-*.tar.gz
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==================== RELEASE MACOS ====================
+  release-macos:
+    name: 🍎 Release macOS (x64)
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 📤 Publish CLI
+        run: dotnet publish src/MpyjVPN.CLI -c Release -r osx-x64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: dotnet publish src/MpyjVPN.Avalonia -c Release -r osx-x64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files
+        run: |
+          cp -f publish/cli/MpyjCLI publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCore.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.deps.json publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.runtimeconfig.json publish 2>/dev/null || true
+      
+      - name: 🔐 Make executable
+        run: |
+          chmod +x publish/MpyjVPN.Avalonia 2>/dev/null || true
+          chmod +x publish/MpyjCLI 2>/dev/null || true
+      
+      - name: 📁 Create TAR.GZ
+        run: |
+          version="${{ github.ref_name }}"
+          version="${version#v}"
+          cd publish
+          tar -czvf "../MpyjVPN-v${version}-macOS-x64.tar.gz" *
+          cd ..
+      
+      - name: 📤 Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MpyjVPN-*.tar.gz
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

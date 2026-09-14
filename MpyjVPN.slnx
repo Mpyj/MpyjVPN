@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MpyjVPN.Application/MpyjVPN.Application.csproj" />
+    <Project Path="src/MpyjVPN.Avalonia/MpyjVPN.Avalonia.csproj" />
+    <Project Path="src/MpyjVPN.Domain/MpyjVPN.Domain.csproj" />
+    <Project Path="src/MpyjVPN.Infrastructure/MpyjVPN.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/MpyjVPN.CLI/">
+    <Project Path="src/MpyjVPN.CLI/MpyjCLI.csproj" />
+  </Folder>
+  <Folder Name="/src/MpyjVPN.Core/">
+    <Project Path="src/MpyjVPN.Core/MpyjCore.csproj" />
+  </Folder>
+</Solution>

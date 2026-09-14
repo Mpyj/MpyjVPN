@@ -1,0 +1,579 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:MpyjVPN.Application.ViewModels;assembly=MpyjVPN.Application"
+             xmlns:local="clr-namespace:MpyjVPN.Avalonia.Controls"
+             x:Class="MpyjVPN.Avalonia.Views.Home.HomeView"
+             x:CompileBindings="False"
+             FontFamily="Segoe UI Emoji, Segoe UI">
+
+    <StackPanel Spacing="24">
+
+        <StackPanel>
+            <TextBlock x:Name="HomeTitle" Text="Connection" FontSize="28" FontWeight="Bold"
+                       Foreground="{DynamicResource TextBrush}"/>
+            <TextBlock x:Name="HomeSubtitle" Text="Manage your VPN connection" FontSize="13"
+                       Foreground="{DynamicResource TextMutedBrush}"/>
+        </StackPanel>
+
+        <Grid ColumnDefinitions="*,*">
+
+            <!-- Connection Card -->
+            <Border x:Name="ConnectionCard"
+                    Grid.Column="0"
+                    Classes="GlassCard"
+                    Margin="0,0,10,0"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1">
+                <StackPanel Spacing="20"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+
+                    <TextBlock x:Name="StatusLabel" Text="STATUS" FontSize="10"
+                               Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="3"
+                               HorizontalAlignment="Center"/>
+
+                    <TextBlock x:Name="StatusText"
+                               Text="Not Connected" FontSize="20"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextDimBrush}"
+                               HorizontalAlignment="Center"/>
+
+                    <local:PowerOrb x:Name="PowerButton"
+                                    IsConnected="False"
+                                    IsConnecting="False"
+                                    Click="OnPowerButtonClick"/>
+
+                    <TextBlock x:Name="ServerInfo"
+                               Text="Ready to connect" FontSize="12"
+                               Foreground="{DynamicResource TextDimBrush}"
+                               HorizontalAlignment="Center"/>
+
+                    <Border Padding="16,8" CornerRadius="20"
+                            Background="{DynamicResource InputBgBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Ellipse x:Name="IpDot" Width="8" Height="8"
+                                     Fill="{DynamicResource TextMutedBrush}"
+                                     VerticalAlignment="Center"/>
+                            <TextBlock x:Name="IpText" Text="0.0.0.0"
+                                       FontSize="12"
+                                       Foreground="{DynamicResource TextDimBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Stats Card -->
+            <Border Grid.Column="1" Classes="GlassCard" Margin="10,0,0,0">
+                <StackPanel Spacing="16">
+
+                    <TextBlock x:Name="StatisticsLabel" Text="STATISTICS" FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="2"/>
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="*,*">
+
+                        <Border Grid.Row="0" Grid.Column="0" Classes="StatBox" Margin="0,0,6,6">
+                            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                <TextBlock Text="↓" FontSize="24" FontFamily="Consolas"
+                                           Foreground="{DynamicResource CyanBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="DownloadVal" Text="--" FontSize="20"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="DownloadLabel" Text="DOWNLOAD" FontSize="9"
+                                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="1"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="0" Grid.Column="1" Classes="StatBox" Margin="6,0,0,6">
+                            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                <TextBlock Text="↑" FontSize="24" FontFamily="Consolas"
+                                           Foreground="{DynamicResource CyanBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="UploadVal" Text="--" FontSize="20"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="UploadLabel" Text="UPLOAD" FontSize="9"
+                                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="1"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="0" Classes="StatBox" Margin="0,6,6,0">
+                            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                <TextBlock Text="●" FontSize="24"
+                                           Foreground="{DynamicResource CyanBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="LossVal" Text="--" FontSize="20"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="LossLabel" Text="LOSS" FontSize="9"
+                                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="1"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="1" Classes="StatBox" Margin="6,6,0,0">
+                            <StackPanel Spacing="6" HorizontalAlignment="Center">
+                                <TextBlock Text="⚡" FontSize="24"
+                                           Foreground="{DynamicResource CyanBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="PingVal" Text="--" FontSize="20"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource TextBrush}"
+                                           HorizontalAlignment="Center"/>
+                                <TextBlock x:Name="PingLabel" Text="PING" FontSize="9"
+                                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="1"
+                                           HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+        </Grid>
+
+        <!-- Modes -->
+        <Border Classes="GlassCard">
+            <StackPanel Spacing="16">
+
+                <TextBlock x:Name="ConnectionModeLabel" Text="CONNECTION MODE" FontSize="11" FontWeight="Bold"
+                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="2"/>
+
+                <Grid ColumnDefinitions="*,*,*,*,*">
+
+                    <Button x:Name="AutoButton" Grid.Column="0"
+                            Classes="ModeBtn Active" Margin="0,0,5,0"
+                            Click="OnModeButtonClick" Tag="auto">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="🤖" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="AutoLabel" Text="AUTO" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="AutoDescLabel" Text="Best" FontSize="9"
+                                       Foreground="{DynamicResource TextDimBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="OnionButton" Grid.Column="1"
+                            Classes="ModeBtn" Margin="5,0,5,0"
+                            Click="OnModeButtonClick" Tag="onion">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="🧅" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="OnionLabel" Text="ONION" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="OnionDescLabel" Text="Filter" FontSize="9"
+                                       Foreground="{DynamicResource TextDimBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="ProtocolsButton" Grid.Column="2"
+                            Classes="ModeBtn" Margin="5,0,5,0"
+                            Click="OnModeButtonClick" Tag="protocols">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="🔓" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ProtocolsLabel" Text="PROTO" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ProtocolsDescLabel" Text="Manual" FontSize="9"
+                                       Foreground="{DynamicResource TextDimBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="UltraButton" Grid.Column="3"
+                            Classes="ModeBtn" Margin="5,0,5,0"
+                            Click="OnModeButtonClick" Tag="ultra">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="💀" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="UltraLabel" Text="ULTRA" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="UltraDescLabel" Text="Multi" FontSize="9"
+                                       Foreground="{DynamicResource TextDimBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button x:Name="ConfigsButton" Grid.Column="4"
+                            Classes="ModeBtn" Margin="5,0,0,0"
+                            Click="OnModeButtonClick" Tag="configs">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="📄" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ConfigsModeLabel" Text="CONFIG" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ConfigsModeDescLabel" Text="Custom" FontSize="9"
+                                       Foreground="{DynamicResource TextDimBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Config Selection -->
+        <Border x:Name="ConfigSelectionCard" Classes="GlassCard" IsVisible="False">
+            <StackPanel Spacing="16">
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock x:Name="ConfigSelectionLabel"
+                               Grid.Column="0"
+                               Text="📄 SELECT A CONFIG"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               LetterSpacing="2"
+                               VerticalAlignment="Center"/>
+
+                    <Button x:Name="ImportConfigInlineButton"
+                            Grid.Column="1"
+                            Content="+ Import"
+                            Padding="12,6"
+                            FontSize="11"
+                            Background="{DynamicResource CyanBrush}"
+                            BorderThickness="0"
+                            CornerRadius="8"
+                            Foreground="White"
+                            FontWeight="SemiBold"
+                            Click="OnImportConfig"/>
+                </Grid>
+
+                <StackPanel x:Name="ConfigSelectionEmpty"
+                            Spacing="8"
+                            HorizontalAlignment="Center"
+                            Margin="0,20">
+                    <TextBlock Text="📭"
+                               FontSize="36"
+                               HorizontalAlignment="Center"
+                               Opacity="0.3"/>
+                    <TextBlock x:Name="ConfigSelectionEmptyText"
+                               Text="No configs yet. Click Import to add."
+                               FontSize="11"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <ComboBox x:Name="ConfigSelectCombo"
+                          IsVisible="False"
+                          HorizontalAlignment="Stretch"
+                          Padding="14,10"
+                          Background="{DynamicResource InputBgBrush}"
+                          BorderBrush="{DynamicResource BorderBrush}"
+                          BorderThickness="1"
+                          CornerRadius="10"
+                          Foreground="{DynamicResource TextBrush}"
+                          FontSize="13"
+                          SelectionChanged="OnConfigSelectChanged">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProtocolViewModel">
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="{Binding Icon}" FontSize="16" VerticalAlignment="Center"/>
+                                <StackPanel Spacing="2" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding Name}" FontSize="13"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextBrush}"/>
+                                    <TextBlock Text="{Binding Description}" FontSize="10"
+                                               Foreground="{DynamicResource TextDimBrush}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <StackPanel x:Name="StackLayersSection" Spacing="12" IsVisible="False">
+
+                    <Border Height="1" Background="{DynamicResource BorderBrush}"/>
+
+                    <TextBlock x:Name="StackLayersLabel"
+                               Text="🔗 STACK LAYERS (Optional)"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               LetterSpacing="2"/>
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ComboBox x:Name="LayerPickerCombo"
+                                  Grid.Column="0"
+                                  HorizontalAlignment="Stretch"
+                                  Padding="12,8"
+                                  Background="{DynamicResource InputBgBrush}"
+                                  BorderBrush="{DynamicResource BorderBrush}"
+                                  BorderThickness="1"
+                                  CornerRadius="10"
+                                  Foreground="{DynamicResource TextBrush}"
+                                  FontSize="12"
+                                  PlaceholderText="Select a layer...">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ProtocolViewModel">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <TextBlock Text="{Binding Icon}" FontSize="14" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding Name}" FontSize="12"
+                                                   Foreground="{DynamicResource TextBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Button x:Name="AddLayerButton"
+                                Grid.Column="1"
+                                Content="+ Add"
+                                Margin="8,0,0,0"
+                                Padding="14,10"
+                                FontSize="12"
+                                Background="{DynamicResource CyanBrush}"
+                                BorderThickness="0"
+                                CornerRadius="10"
+                                Foreground="White"
+                                FontWeight="SemiBold"
+                                Click="OnAddLayer"/>
+                    </Grid>
+
+                    <TextBlock x:Name="NoLayersText"
+                               Text="No layers added. Config will connect directly."
+                               FontSize="10"
+                               Foreground="{DynamicResource TextDimBrush}"
+                               HorizontalAlignment="Center"
+                               IsVisible="True"/>
+
+                    <Border x:Name="LayersListContainer"
+                            Background="{DynamicResource CodeBgBrush}"
+                            CornerRadius="10"
+                            Padding="8"
+                            IsVisible="False"
+                            MaxHeight="200">
+                        <ScrollViewer>
+                            <ItemsControl x:Name="LayersList" ItemsSource="{Binding StackLayers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:StackLayerViewModel">
+                                        <Border Background="{DynamicResource InputBgBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="8"
+                                                Padding="10,8"
+                                                Margin="0,2">
+                                            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding DisplayText}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource TextBrush}"
+                                                           VerticalAlignment="Center"/>
+
+                                                <Button Grid.Column="1"
+                                                        Content="⬆"
+                                                        Width="26" Height="26"
+                                                        Padding="0"
+                                                        FontSize="12"
+                                                        Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6"
+                                                        Foreground="{DynamicResource TextDimBrush}"
+                                                        HorizontalContentAlignment="Center"
+                                                        VerticalContentAlignment="Center"
+                                                        Margin="0,0,4,0"
+                                                        Click="OnMoveLayerUp"/>
+
+                                                <Button Grid.Column="2"
+                                                        Content="⬇"
+                                                        Width="26" Height="26"
+                                                        Padding="0"
+                                                        FontSize="12"
+                                                        Background="Transparent"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6"
+                                                        Foreground="{DynamicResource TextDimBrush}"
+                                                        HorizontalContentAlignment="Center"
+                                                        VerticalContentAlignment="Center"
+                                                        Margin="0,0,4,0"
+                                                        Click="OnMoveLayerDown"/>
+
+                                                <Button Grid.Column="3"
+                                                        Content="✕"
+                                                        Width="26" Height="26"
+                                                        Padding="0"
+                                                        FontSize="12"
+                                                        Background="Transparent"
+                                                        BorderBrush="#ef4444"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6"
+                                                        Foreground="#ef4444"
+                                                        HorizontalContentAlignment="Center"
+                                                        VerticalContentAlignment="Center"
+                                                        Click="OnRemoveLayer"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Border>
+
+                </StackPanel>
+
+                <Border x:Name="ConfigPreviewBox"
+                        IsVisible="False"
+                        Background="{DynamicResource InputBgBrush}"
+                        BorderBrush="{DynamicResource CyanBrush}"
+                        BorderThickness="1"
+                        CornerRadius="10"
+                        Padding="14,10">
+                    <StackPanel Spacing="4">
+                        <TextBlock x:Name="ConfigPreviewLabel"
+                                   Text="Preview"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   LetterSpacing="1"/>
+                        <TextBlock x:Name="ConfigPreviewText"
+                                   Text="—"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"
+                                   FontFamily="Consolas"
+                                   Foreground="{DynamicResource CyanBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock x:Name="ConfigHintText"
+                           Text="💡 Press Power button to connect"
+                           FontSize="11"
+                           Foreground="{DynamicResource TextDimBrush}"
+                           HorizontalAlignment="Center"/>
+
+            </StackPanel>
+        </Border>
+
+        <!-- Imported Configs List -->
+        <Border Classes="GlassCard">
+            <StackPanel Spacing="16">
+
+                <Grid ColumnDefinitions="*,Auto">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                        <TextBlock x:Name="ConfigsLabel"
+                                   Text="📄 IMPORTED CONFIGS"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   LetterSpacing="2"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="{DynamicResource CyanBrush}"
+                                CornerRadius="10"
+                                Padding="8,2">
+                            <TextBlock x:Name="ConfigsCount"
+                                       Text="0"
+                                       FontSize="10"
+                                       FontWeight="Bold"
+                                       Foreground="White"/>
+                        </Border>
+                    </StackPanel>
+
+                    <Button x:Name="ImportConfigButton"
+                            Grid.Column="1"
+                            Content="+ Import"
+                            Padding="12,6"
+                            FontSize="11"
+                            Background="{DynamicResource CyanBrush}"
+                            BorderThickness="0"
+                            CornerRadius="8"
+                            Foreground="White"
+                            FontWeight="SemiBold"
+                            Click="OnImportConfig"/>
+                </Grid>
+
+                <StackPanel x:Name="ConfigsEmpty"
+                            Spacing="6"
+                            HorizontalAlignment="Center"
+                            Margin="0,12">
+                    <TextBlock Text="📭"
+                               FontSize="32"
+                               HorizontalAlignment="Center"
+                               Opacity="0.3"/>
+                    <TextBlock x:Name="ConfigsEmptyText"
+                               Text="No configs yet. Click Import to add."
+                               FontSize="11"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               HorizontalAlignment="Center"/>
+                </StackPanel>
+
+                <ItemsControl x:Name="ConfigsList" ItemsSource="{Binding ImportedConfigs}" IsVisible="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:ProtocolViewModel">
+                            <Border Background="{DynamicResource InputBgBrush}"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="10"
+                                    Padding="12,10"
+                                    Margin="0,3">
+                                <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Icon}"
+                                               FontSize="18"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+
+                                    <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextBrush}"/>
+                                        <TextBlock Text="{Binding Description}"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource TextDimBrush}"/>
+                                    </StackPanel>
+
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Ping}"
+                                               FontSize="11"
+                                               FontFamily="Consolas"
+                                               Foreground="{DynamicResource CyanBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"
+                                               MinWidth="50"/>
+
+                                    <CheckBox Grid.Column="3"
+                                              IsChecked="{Binding IsEnabled}"
+                                              VerticalAlignment="Center"
+                                              Margin="0,0,10,0"/>
+
+                                    <Button Grid.Column="4"
+                                            Content="🗑️"
+                                            Width="32" Height="32"
+                                            Padding="0"
+                                            FontSize="14"
+                                            Background="Transparent"
+                                            BorderBrush="#ef4444"
+                                            BorderThickness="1"
+                                            CornerRadius="8"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Click="OnDeleteConfig"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+
+</UserControl>

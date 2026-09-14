@@ -1,0 +1,198 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="MpyjVPN.Avalonia.Views.Diagnostics.DiagnosticsView"
+             x:CompileBindings="False"
+             FontFamily="Segoe UI Emoji, Segoe UI">
+
+    <StackPanel Spacing="24">
+
+        <StackPanel>
+            <TextBlock x:Name="DiagnosticsTitle" Text="Diagnostics" FontSize="28" FontWeight="Bold"
+                       Foreground="{DynamicResource TextBrush}"/>
+            <TextBlock x:Name="DiagnosticsSubtitle" Text="System information and performance" FontSize="13"
+                       Foreground="{DynamicResource TextMutedBrush}"/>
+        </StackPanel>
+
+        <!-- Quick Actions -->
+        <Border Classes="GlassCard">
+            <StackPanel Spacing="16">
+                <TextBlock x:Name="QuickActionsLabel" Text="QUICK ACTIONS" FontSize="11" FontWeight="Bold"
+                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="2"/>
+
+                <Grid ColumnDefinitions="*,*,*,*,*">
+                    <Button Grid.Column="0" Margin="0,0,6,0" Padding="16,12"
+                            Background="{DynamicResource InputBgBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" CornerRadius="12"
+                            Click="OnRunDiagnostics">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="🔍" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="DiagnoseLabel" Text="Diagnose" FontSize="11"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="1" Margin="6,0,6,0" Padding="16,12"
+                            Background="{DynamicResource InputBgBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" CornerRadius="12"
+                            Click="OnScanIPs">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="📡" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ScanIPLabel" Text="Scan IP" FontSize="11"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="2" Margin="6,0,6,0" Padding="16,12"
+                            Background="{DynamicResource InputBgBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" CornerRadius="12"
+                            Click="OnGetLayers">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="🧅" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="LayersLabel" Text="Layers" FontSize="11"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="3" Margin="6,0,6,0" Padding="16,12"
+                            Background="{DynamicResource InputBgBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" CornerRadius="12"
+                            Click="OnCopyLog">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="📋" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="CopyLogLabel" Text="Copy Log" FontSize="11"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="4" Margin="6,0,0,0" Padding="16,12"
+                            Background="{DynamicResource InputBgBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1" CornerRadius="12"
+                            Click="OnClearLog">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="🗑️" FontSize="22" HorizontalAlignment="Center"/>
+                            <TextBlock x:Name="ClearLogLabel" Text="Clear Log" FontSize="11"
+                                       Foreground="{DynamicResource TextBrush}"
+                                       HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </StackPanel>
+        </Border>
+        <!-- IP Scanner Panel -->
+        <Border x:Name="IPScannerPanel" Classes="GlassCard" IsVisible="False">
+            <StackPanel Spacing="16">
+                <Grid ColumnDefinitions="*,Auto,Auto">
+                    <TextBlock x:Name="IPScannerLabel" Grid.Column="0"
+                               Text="🌐 SCANNED IPs"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               LetterSpacing="2"
+                               VerticalAlignment="Center"/>
+                    <TextBlock x:Name="IPScannerCount" Grid.Column="1"
+                               Text="0 found"
+                               FontSize="11"
+                               Foreground="{DynamicResource TextDimBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"/>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6">
+                        <Button x:Name="SortIPsButton"
+                                Content="🔤 Sort"
+                                Padding="12,6" FontSize="11"
+                                Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1" CornerRadius="8"
+                                Foreground="{DynamicResource TextBrush}"
+                                Click="OnSortIPs"/>
+                        <Button x:Name="CopyIPsButton"
+                                Content="📋 Copy"
+                                Padding="12,6" FontSize="11"
+                                Background="{DynamicResource SurfaceBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1" CornerRadius="8"
+                                Foreground="{DynamicResource TextBrush}"
+                                Click="OnCopyIPs"/>
+                    </StackPanel>
+                </Grid>
+
+                <Border Background="{DynamicResource CodeBgBrush}"
+                        CornerRadius="12" Padding="8"
+                        MinHeight="180" MaxHeight="300">
+                    <ScrollViewer>
+                        <ItemsControl x:Name="IPsList" ItemsSource="{Binding ScannedIPs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent"
+                                            Padding="12,8" Margin="0,2"
+                                            CornerRadius="8">
+                                        <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding Rank}"
+                                                       FontSize="14"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,10,0"
+                                                       MinWidth="30"/>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Address}"
+                                                       FontFamily="Consolas"
+                                                       FontSize="13"
+                                                       Foreground="{DynamicResource TextBrush}"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding PingText}"
+                                                       FontFamily="Consolas"
+                                                       FontSize="12"
+                                                       Foreground="{DynamicResource CyanBrush}"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,12,0"
+                                                       MinWidth="60"/>
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding StatusIcon}"
+                                                       FontSize="12"
+                                                       VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </Border>
+
+        <!-- Log -->
+        <Border Classes="GlassCard">
+            <StackPanel Spacing="16">
+                <TextBlock x:Name="LogLabel" Text="LOG" FontSize="11" FontWeight="Bold"
+                           Foreground="{DynamicResource TextMutedBrush}" LetterSpacing="2"/>
+
+                <Border Background="{DynamicResource CodeBgBrush}"
+                        CornerRadius="12" Padding="16" MinHeight="400">
+                    <ScrollViewer>
+                        <ItemsControl x:Name="LogList" ItemsSource="{Binding Logs}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="x:String">
+                                    <TextBlock Text="{Binding}"
+                                               FontFamily="Consolas"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource TextDimBrush}"
+                                               Margin="0,2"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </StackPanel>
+        </Border>
+
+    </StackPanel>
+
+</UserControl>

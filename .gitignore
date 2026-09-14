@@ -1,0 +1,131 @@
+﻿cd C:\Users\parsa\OneDrive\Desktop\MpyjVPN
+
+@'
+# ==================== .NET ====================
+bin/
+obj/
+publish/
+publish-normal/
+publish-test/
+*.user
+*.suo
+*.userprefs
+*.cache
+*.pdb
+
+# ==================== Visual Studio ====================
+.vs/
+*.vsidx
+.vscode/
+*.code-workspace
+
+# ==================== JetBrains Rider ====================
+.idea/
+*.sln.iml
+*.sln.DotSettings.user
+
+# ==================== Build Results ====================
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+build-results/
+*.buildlog
+
+# ==================== Build folder (keep only setup.iss + icon.ico) ====================
+build/*
+!build/setup.iss
+!build/icon.ico
+
+# ==================== NuGet ====================
+*.nupkg
+*.snupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ==================== Test Results ====================
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# ==================== Logs ====================
+*.log
+logs/
+*.log.txt
+mpyj_log.txt
+tray_debug.txt
+
+# ==================== OS Files ====================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==================== Backups ====================
+_backup_*/
+*.backup
+*.backup2
+*.backup_*
+*.bak
+*.bak2
+*.bak3
+*.broken
+*.orig
+*.rej
+
+# ==================== Project Specific ====================
+settings.json
+configs.json
+
+# ==================== IDE ====================
+*.swp
+*.swo
+*~
+*.tmp
+*.temp
+
+# ==================== Node ====================
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# ==================== Python ====================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+env/
+venv/
+.venv/
+ENV/
+
+# ==================== Misc ====================
+*.pid
+*.seed
+.lib/
+dist/
+.tmp/
+.temp/
+
+# ==================== Local ====================
+*.local
+.local/
+.env
+.env.local
+
+# ==================== Lock Files ====================
+*.lock
+
+# ==================== IMPORTANT: Keep these! ====================
+!.gitignore
+!.github/
+!README.md
+!LICENSE
+'@ | Out-File ".gitignore" -Encoding UTF8 -NoNewline
+
+Write-Host "✅ .gitignore اصلاح شد!" -ForegroundColor Green

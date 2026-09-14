@@ -1,0 +1,242 @@
+name: Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  # ==================== BUILD WINDOWS ====================
+  build-windows:
+    name: 🪟 Build Windows (x64)
+    runs-on: windows-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build Solution
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 🧪 Run Tests
+        run: dotnet test MpyjVPN.slnx -c Release --no-build --verbosity normal
+        continue-on-error: true
+      
+      - name: 📤 Publish CLI
+        run: |
+          dotnet publish src/MpyjVPN.CLI -c Release -r win-x64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: |
+          dotnet publish src/MpyjVPN.Avalonia -c Release -r win-x64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files to UI
+        shell: pwsh
+        run: |
+          $cliDest = "publish/cli"
+          $uiDest = "publish"
+          
+          # فایل‌های CLI
+          Copy-Item "$cliDest/MpyjCLI.exe" $uiDest -Force -ErrorAction SilentlyContinue
+          Copy-Item "$cliDest/MpyjCLI.dll" $uiDest -Force -ErrorAction SilentlyContinue
+          Copy-Item "$cliDest/MpyjCore.dll" $uiDest -Force -ErrorAction SilentlyContinue
+          Copy-Item "$cliDest/MpyjCLI.deps.json" $uiDest -Force -ErrorAction SilentlyContinue
+          Copy-Item "$cliDest/MpyjCLI.runtimeconfig.json" $uiDest -Force -ErrorAction SilentlyContinue
+      
+      - name: 📁 Create ZIP
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "publish/*" -DestinationPath "MpyjVPN-Windows-x64.zip" -Force
+      
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MpyjVPN-Windows-x64
+          path: MpyjVPN-Windows-x64.zip
+          retention-days: 30
+
+  # ==================== BUILD LINUX ====================
+  build-linux:
+    name: 🐧 Build Linux (x64)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build Solution
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 🧪 Run Tests
+        run: dotnet test MpyjVPN.slnx -c Release --no-build --verbosity normal
+        continue-on-error: true
+      
+      - name: 📤 Publish CLI
+        run: |
+          dotnet publish src/MpyjVPN.CLI -c Release -r linux-x64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: |
+          dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-x64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files to UI
+        run: |
+          cp -f publish/cli/MpyjCLI publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCore.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.deps.json publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.runtimeconfig.json publish 2>/dev/null || true
+      
+      - name: 🔐 Make executable
+        run: |
+          chmod +x publish/MpyjVPN.Avalonia 2>/dev/null || true
+          chmod +x publish/MpyjCLI 2>/dev/null || true
+      
+      - name: 📁 Create TAR.GZ
+        run: |
+          cd publish
+          tar -czvf ../MpyjVPN-Linux-x64.tar.gz *
+          cd ..
+      
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MpyjVPN-Linux-x64
+          path: MpyjVPN-Linux-x64.tar.gz
+          retention-days: 30
+
+  # ==================== BUILD MACOS ====================
+  build-macos:
+    name: 🍎 Build macOS (x64)
+    runs-on: macos-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build Solution
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 🧪 Run Tests
+        run: dotnet test MpyjVPN.slnx -c Release --no-build --verbosity normal
+        continue-on-error: true
+      
+      - name: 📤 Publish CLI
+        run: |
+          dotnet publish src/MpyjVPN.CLI -c Release -r osx-x64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: |
+          dotnet publish src/MpyjVPN.Avalonia -c Release -r osx-x64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files to UI
+        run: |
+          cp -f publish/cli/MpyjCLI publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCore.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.deps.json publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.runtimeconfig.json publish 2>/dev/null || true
+      
+      - name: 🔐 Make executable
+        run: |
+          chmod +x publish/MpyjVPN.Avalonia 2>/dev/null || true
+          chmod +x publish/MpyjCLI 2>/dev/null || true
+      
+      - name: 📁 Create TAR.GZ
+        run: |
+          cd publish
+          tar -czvf ../MpyjVPN-macOS-x64.tar.gz *
+          cd ..
+      
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MpyjVPN-macOS-x64
+          path: MpyjVPN-macOS-x64.tar.gz
+          retention-days: 30
+
+  # ==================== BUILD LINUX ARM64 ====================
+  build-linux-arm64:
+    name: 🐧 Build Linux (ARM64)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔨 Build Solution
+        run: dotnet build MpyjVPN.slnx -c Release --no-restore
+      
+      - name: 📤 Publish CLI
+        run: |
+          dotnet publish src/MpyjVPN.CLI -c Release -r linux-arm64 --self-contained false -o publish/cli
+      
+      - name: 📤 Publish UI
+        run: |
+          dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-arm64 --self-contained false -o publish
+      
+      - name: 📋 Copy CLI files to UI
+        run: |
+          cp -f publish/cli/MpyjCLI publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCore.dll publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.deps.json publish 2>/dev/null || true
+          cp -f publish/cli/MpyjCLI.runtimeconfig.json publish 2>/dev/null || true
+      
+      - name: 🔐 Make executable
+        run: |
+          chmod +x publish/MpyjVPN.Avalonia 2>/dev/null || true
+          chmod +x publish/MpyjCLI 2>/dev/null || true
+      
+      - name: 📁 Create TAR.GZ
+        run: |
+          cd publish
+          tar -czvf ../MpyjVPN-Linux-ARM64.tar.gz *
+          cd ..
+      
+      - name: 📤 Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MpyjVPN-Linux-ARM64
+          path: MpyjVPN-Linux-ARM64.tar.gz
+          retention-days: 30

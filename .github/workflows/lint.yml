@@ -1,0 +1,32 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    name: 🔍 Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+      
+      - name: 🔧 Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      
+      - name: 📦 Restore
+        run: dotnet restore MpyjVPN.slnx
+      
+      - name: 🔍 Check Format
+        run: dotnet format MpyjVPN.slnx --verify-no-changes --verbosity diagnostic
+        continue-on-error: true
+      
+      - name: 🔨 Build with warnings as errors
+        run: dotnet build MpyjVPN.slnx -c Release -warnaserror
+        continue-on-error: true
