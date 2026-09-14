@@ -6,11 +6,11 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    - cron: '0 0 * * 0'  # هر یکشنبه
+    - cron: '0 0 * * 0'
 
 jobs:
   analyze:
-    name: 🔍 Analyze
+    name: Analyze C#
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -23,21 +23,20 @@ jobs:
         language: [ 'csharp' ]
 
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: 🔧 Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
 
-      - name: 🔍 Initialize CodeQL
+      - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
 
-      - name: 🔨 Build
-        run: dotnet build MpyjVPN.slnx -c Release
+      - name: Build
+        run: dotnet build -c Release
 
-      - name: 🔍 Perform CodeQL Analysis
+      - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
