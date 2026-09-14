@@ -25,7 +25,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Publish UI (Self-Contained)
+      - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r win-x64 --self-contained true -o dist/publish-normal
 
       - name: Install Inno Setup
@@ -78,7 +78,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libice6 libsm6 libfontconfig1
 
-      - name: Publish UI (Self-Contained)
+      - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-x64 --self-contained true -o dist/publish-linux-x64
 
       - name: Create Tarball
@@ -87,7 +87,7 @@ jobs:
           version="${version#v}"
           chmod +x dist/publish-linux-x64/MpyjVPN.Avalonia
           cd dist/publish-linux-x64
-          tar -czvf "../../MpyjVPN-v${version}-Linux-x64.tar.gz" *
+          tar -czvf "../MpyjVPN-v${version}-Linux-x64.tar.gz" *
           cd ../..
 
       - name: Upload to Release
@@ -114,7 +114,7 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libice6 libsm6 libfontconfig1
 
-      - name: Publish UI (Self-Contained)
+      - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-arm64 --self-contained true -o dist/publish-linux-arm64
 
       - name: Create Tarball
@@ -123,7 +123,7 @@ jobs:
           version="${version#v}"
           chmod +x dist/publish-linux-arm64/MpyjVPN.Avalonia
           cd dist/publish-linux-arm64
-          tar -czvf "../../MpyjVPN-v${version}-Linux-ARM64.tar.gz" *
+          tar -czvf "../MpyjVPN-v${version}-Linux-ARM64.tar.gz" *
           cd ../..
 
       - name: Upload to Release
@@ -147,7 +147,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Publish UI (Self-Contained)
+      - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r osx-x64 --self-contained true -o dist/publish-macos-x64
 
       - name: Create Tarball
@@ -156,7 +156,7 @@ jobs:
           version="${version#v}"
           chmod +x dist/publish-macos-x64/MpyjVPN.Avalonia
           cd dist/publish-macos-x64
-          tar -czvf "../../MpyjVPN-v${version}-macOS-x64.tar.gz" *
+          tar -czvf "../MpyjVPN-v${version}-macOS-x64.tar.gz" *
           cd ../..
 
       - name: Upload to Release
@@ -180,7 +180,7 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Publish UI (Self-Contained)
+      - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r osx-arm64 --self-contained true -o dist/publish-macos-arm64
 
       - name: Create Tarball
@@ -189,7 +189,7 @@ jobs:
           version="${version#v}"
           chmod +x dist/publish-macos-arm64/MpyjVPN.Avalonia
           cd dist/publish-macos-arm64
-          tar -czvf "../../MpyjVPN-v${version}-macOS-ARM64.tar.gz" *
+          tar -czvf "../MpyjVPN-v${version}-macOS-ARM64.tar.gz" *
           cd ../..
 
       - name: Upload to Release
