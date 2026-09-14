@@ -129,3 +129,5 @@ dist/
 '@ | Out-File ".gitignore" -Encoding UTF8 -NoNewline
 
 Write-Host "✅ .gitignore اصلاح شد!" -ForegroundColor Green
+# WARP Installer (downloaded in CI)
+*.msi
