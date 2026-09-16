@@ -52,7 +52,7 @@ public class WarpMultiService
             LogMessage?.Invoke("🔧 Preparing WARP...", "info");
 
             // ۱. ثبت‌نام (اگه قبلاً انجام نشده)
-            await RunWarpCliAsync(warpCli, "registration new");
+            await RunWarpCliAsync(warpCli, "registration new --accept-tos");
             await Task.Delay(1000);
 
             // ۲. تغییر پروتکل به WireGuard (حل مشکل MASQUE تو ایران)

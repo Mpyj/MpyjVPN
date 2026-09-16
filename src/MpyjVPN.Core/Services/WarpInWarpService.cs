@@ -103,7 +103,7 @@ public class WarpInWarpService
             if (process == null) return false;
 
             await process.WaitForExitAsync();
-            await Task.Delay(4000);
+            await Task.Delay(15000);
 
             return await CheckWarpStatusAsync();
         }

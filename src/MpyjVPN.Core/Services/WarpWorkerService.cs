@@ -104,7 +104,7 @@ public class WarpWorkerService
             if (process == null) return false;
 
             await process.WaitForExitAsync();
-            await Task.Delay(5000);
+            await Task.Delay(15000);
 
             return await CheckWarpStatusAsync();
         }

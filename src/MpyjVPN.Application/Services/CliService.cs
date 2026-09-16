@@ -28,7 +28,7 @@ public class CliService
     
     public async Task<string> ConnectAsync(string mode)
     {
-        return await ExecutePersistentAsync(4000, "connect", mode);
+        return await ExecutePersistentAsync(20000, "connect", mode);
     }
     
     public async Task<string> LoadConfigAsync(string config)
