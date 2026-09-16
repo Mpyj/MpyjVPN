@@ -1,6 +1,6 @@
 ﻿; MpyjVPN Installer Script
 #define MyAppName "MpyjVPN"
-#define MyAppVersion "1.0.0-beta.5"
+#define MyAppVersion "1.0.0-beta.6"
 #define MyAppPublisher "Mpyj"
 #define MyAppExeName "MpyjVPN.Avalonia.exe"
 
@@ -30,7 +30,6 @@ Name: "desktopicon"; Description: "Create a desktop icon"; GroupDescription: "Ad
 
 [Files]
 Source: "..\dist\publish-normal\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "Cloudflare_WARP_Release-x64.msi"; DestDir: "{tmp}"; Flags: deleteafterinstall
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -40,46 +39,67 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "Launch MpyjVPN"; Flags: nowait postinstall skipifsilent
 
 [Code]
+var
+  DownloadPage: TDownloadWizardPage;
+
+function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
+begin
+  if Progress = ProgressMax then
+    Log(Format('Successfully downloaded file to {tmp}: %s', [FileName]));
+  Result := True;
+end;
+
+procedure InitializeWizard;
+begin
+  DownloadPage := CreateDownloadPage(SetupMessage(msgWizardPreparing), SetupMessage(msgPreparingDesc), @OnDownloadProgress);
+end;
+
 function IsWarpInstalled(): Boolean;
 begin
   Result := FileExists(ExpandConstant('{commonpf}\Cloudflare\Cloudflare WARP\warp-cli.exe')) or
             FileExists(ExpandConstant('{commonpf32}\Cloudflare\Cloudflare WARP\warp-cli.exe'));
 end;
 
-procedure InstallWarp();
-var
-  ResultCode: Integer;
+function NextButtonClick(CurPageID: Integer): Boolean;
 begin
-  if IsWarpInstalled() then
+  Result := True;
+  if (CurPageID = wpReady) and (not IsWarpInstalled()) then
   begin
-    exit;
-  end;
-
-  if MsgBox('MpyjVPN requires Cloudflare WARP to work properly.' + #13#10 + #13#10 +
-            'Do you want to install it now?' + #13#10 + #13#10 +
-            'This is required for the VPN to connect.', mbConfirmation, MB_YESNO) = idYes then
-  begin
-    if not Exec(ExpandConstant('{tmp}\Cloudflare_WARP_Release-x64.msi'), '/qn /norestart', '', SW_SHOW, ewWaitUntilTerminated, ResultCode) then
-    begin
-      MsgBox('WARP installation failed with code: ' + IntToStr(ResultCode) + #13#10 + #13#10 +
-             'Please install Cloudflare WARP manually from https://1.1.1.1/ and try again.', mbError, MB_OK);
-    end
-    else
-    begin
-      MsgBox('Cloudflare WARP installed successfully!', mbInformation, MB_OK);
+    DownloadPage.Clear;
+    DownloadPage.Add('https://1111-releases.cloudflareclient.com/win/latest', 'Cloudflare_WARP_Release-x64.msi', '');
+    DownloadPage.Show;
+    try
+      try
+        DownloadPage.Download;
+      except
+        MsgBox('Failed to download Cloudflare WARP. Please install it manually from https://1.1.1.1/ and run this installer again.', mbError, MB_OK);
+        Result := False;
+      end;
+    finally
+      DownloadPage.Hide;
     end;
-  end
-  else
-  begin
-    MsgBox('You can install Cloudflare WARP later from https://1.1.1.1/' + #13#10 + #13#10 +
-           'Without it, MpyjVPN may not be able to connect.', mbInformation, MB_OK);
   end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
+var
+  ResultCode: Integer;
 begin
   if CurStep = ssPostInstall then
   begin
-    InstallWarp();
+    if not IsWarpInstalled() then
+    begin
+      if FileExists(ExpandConstant('{tmp}\Cloudflare_WARP_Release-x64.msi')) then
+      begin
+        if not Exec('msiexec.exe', '/i "' + ExpandConstant('{tmp}\Cloudflare_WARP_Release-x64.msi') + '" /qn /norestart', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+        begin
+          Log('WARP installation failed with code: ' + IntToStr(ResultCode));
+        end
+        else
+        begin
+          Log('WARP installed successfully');
+        end;
+      end;
+    end;
   end;
 end;

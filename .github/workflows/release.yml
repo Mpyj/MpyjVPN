@@ -31,14 +31,6 @@ jobs:
       - name: Install Inno Setup
         run: choco install innosetup -y
         shell: cmd
-
-      - name: Download WARP Client MSI
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path "build" -Force | Out-Null
-          Invoke-WebRequest -Uri "https://1111-releases.cloudflareclient.com/win/latest" -OutFile "build/Cloudflare_WARP_Release-x64.msi" -UseBasicParsing
-          Get-Item "build/Cloudflare_WARP_Release-x64.msi" | Select-Object Name, Length
-
       - name: Build Installer
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" build\setup.iss
