@@ -6,6 +6,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using MpyjVPN.UI.Controls;
 using MpyjVPN.Application.Services;
+using MpyjCore;
 using MpyjVPN.Application.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace MpyjVPN.UI.Views.Home;
 public partial class HomeView : UserControl
 {
     private readonly CliService _cli = new();
+    private readonly VpnEngine _engine = new();
     private readonly NetworkMonitor _netMonitor = new();
 
     private bool _isConnected = false;
@@ -112,6 +114,14 @@ public partial class HomeView : UserControl
         }
 
         _currentMode = mode;
+        // Config Mode موقتاً غیرفعال
+        if (mode == "configs")
+        {
+            if (_serverInfo != null)
+                _serverInfo.Text = "⏳ Config Mode coming soon";
+            LogService.Add("⏳ Config Mode coming soon");
+            return;
+        }
         LogService.Add($"🎮 Mode changed: {mode.ToUpper()}");
 
         SetClass(_autoButton, "Active", mode == "auto");
@@ -422,13 +432,22 @@ public partial class HomeView : UserControl
             if (_currentMode == "configs" && _activeConfig != null
                 && !string.IsNullOrEmpty(_activeConfig.RawConfig))
             {
-                var configResult = await _cli.LoadConfigAsync(_activeConfig.RawConfig);
+                // استفاده از VpnEngine مستقیم (نه CliService)
+                LogService.Add($"📄 Loading config: {_activeConfig.Name}");
 
-                bool parseSuccess = configResult.Contains("config parsed") ||
-                                    configResult.Contains("Config connected") ||
-                                    configResult.Contains("Xray started");
+                bool success;
+                if (StackLayers.Count > 0)
+                {
+                    var layers = StackLayers.Select(l => l.Name).ToList();
+                    LogService.Add($"🔗 Connecting with {layers.Count} layer(s)");
+                    success = await _engine.ConnectWithConfigAndLayersAsync(_activeConfig.RawConfig, layers);
+                }
+                else
+                {
+                    success = await _engine.ConnectWithConfigAsync(_activeConfig.RawConfig);
+                }
 
-                if (!parseSuccess)
+                if (!success)
                 {
                     if (_statusText != null)
                     {
@@ -446,13 +465,6 @@ public partial class HomeView : UserControl
                         _powerButton.IsConnected = false;
                     }
                     return;
-                }
-
-                if (StackLayers.Count > 0)
-                {
-                    var layerNames = string.Join(",", StackLayers.Select(l => l.Name));
-                    LogService.Add($"🔗 Connecting layers: {layerNames}");
-                    await _cli.ConnectLayersAsync(layerNames);
                 }
 
                 _isConnected = true;
@@ -566,6 +578,7 @@ public partial class HomeView : UserControl
         try
         {
             await _cli.DisconnectAsync();
+            await _engine.DisconnectAsync();
         }
         catch { }
 

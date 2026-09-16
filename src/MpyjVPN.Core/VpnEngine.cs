@@ -359,30 +359,51 @@ public class VpnEngine
     /// Ø§ØªØµØ§Ù„ Ø¨Ø§ Ú©Ø§Ù†ÙÛŒÚ¯ (ÙÙ‚Ø· Xray Ø±Ùˆ Ø±Ø§Ù‡ Ù…ÛŒâ€ŒÙ†Ø¯Ø§Ø²Ù‡ØŒ Ù„Ø§ÛŒÙ‡â€ŒÙ‡Ø§ Ø±Ùˆ Ú©Ø§Ø±Ø¨Ø± Ø®ÙˆØ¯Ø´ Ø§Ù†ØªØ®Ø§Ø¨ Ù…ÛŒâ€ŒÚ©Ù†Ù‡)
     /// </summary>
     public async Task<bool> ConnectWithConfigAsync(string config)
+{
+    Log("📄 Loading config...", "info");
+
+    var configOk = await _configService.LoadConfigAsync(config);
+    if (!configOk)
     {
-        Log("ðŸ”— Loading config...", "info");
-        
-        var configOk = await _configService.LoadConfigAsync(config);
-        if (!configOk) return false;
-        
-        Log("ðŸš€ Starting config...", "info");
-        var started = await _configService.StartXrayAsync();
-        
-        if (started)
-        {
-            Log("âœ… Config connected!", "success");
-            
-            // âœ… Ø¯ÛŒÚ¯Ù‡ Ø®ÙˆØ¯Ú©Ø§Ø± Onion Ø§Ø¬Ø±Ø§ Ù†Ú©Ù†
-            // Ú©Ø§Ø±Ø¨Ø± Ø®ÙˆØ¯Ø´ Ù„Ø§ÛŒÙ‡â€ŒÙ‡Ø§ Ø±Ùˆ Ø§Ù†ØªØ®Ø§Ø¨ Ù…ÛŒâ€ŒÚ©Ù†Ù‡ (Ø§Ø² Ø·Ø±ÛŒÙ‚ connect-layers)
-            
-            IsConnected = true;
-            ConnectionChanged?.Invoke(true);
-            
-            return true;
-        }
-        
+        Log("❌ Config load failed", "error");
         return false;
     }
+
+    Log("🚀 Starting config...", "info");
+    var started = await _configService.StartXrayAsync();
+
+    if (!started)
+    {
+        Log("❌ Xray failed to start", "error");
+        return false;
+    }
+
+    Log("✅ Config connected!", "success");
+
+            // ۳. تنظیم پروکسی سیستم (بعد از Xray)
+            Log("🔧 Setting system proxy...", "info");
+            try
+            {
+                _configService.SetSystemProxy();
+            }
+            catch (Exception ex)
+            {
+                Log($"⚠️ System proxy error: {ex.Message}", "warning");
+            }
+
+    // ۱. تنظیم DNS
+    Log("🔧 Changing DNS...", "info");
+    await _dnsService.ChangeDnsAsync("1.1.1.1", "1.0.0.1");
+
+    // ۲. تنظیم پروکسی سیستم
+    Log("🔧 Setting system proxy...", "info");
+    _configService.SetSystemProxy();
+
+    IsConnected = true;
+    ConnectionChanged?.Invoke(true);
+
+    return true;
+}
     
     /// <summary>
     /// Ø§ØªØµØ§Ù„ Ø¨Ø§ Ú©Ø§Ù†ÙÛŒÚ¯ + Ù„Ø§ÛŒÙ‡â€ŒÙ‡Ø§ÛŒ Ø³ÙØ§Ø±Ø´ÛŒ

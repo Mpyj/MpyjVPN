@@ -19,8 +19,7 @@ public class MainActivity : AvaloniaMainActivity<MpyjVPN.UI.App>
         return base.CustomizeAppBuilder(builder)
             .With(new AndroidPlatformOptions
             {
-                // این خط مشکل صفحه سیاه رو حل می‌کنه
-                RenderingMode = new[] { AndroidRenderingMode.Software }
+                RenderingMode = new[] { AndroidRenderingMode.Egl, AndroidRenderingMode.Software }
             })
             .WithInterFont();
     }

@@ -23,15 +23,11 @@ public class HomeViewModel : INotifyPropertyChanged
         return true;
     }
 
-    // ==================== SERVICES ====================
-
     private readonly CliService _cli = new();
     private readonly NetworkMonitor _netMonitor = new();
 
     public CliService Cli => _cli;
     public NetworkMonitor NetworkMonitor => _netMonitor;
-
-    // ==================== STATE ====================
 
     private bool _isConnected;
     public bool IsConnected
@@ -110,13 +106,9 @@ public class HomeViewModel : INotifyPropertyChanged
         set => SetProperty(ref _activeConfig, value);
     }
 
-    // ==================== COLLECTIONS ====================
-
     public ObservableCollection<ProtocolViewModel> ImportedConfigs { get; } = new();
     public ObservableCollection<StackLayerViewModel> StackLayers { get; } = new();
     public ObservableCollection<string> Logs { get; } = new();
-
-    // ==================== CONSTRUCTOR ====================
 
     public HomeViewModel()
     {
@@ -124,8 +116,6 @@ public class HomeViewModel : INotifyPropertyChanged
         _netMonitor.PingUpdated += OnPingUpdated;
         _netMonitor.LossUpdated += OnLossUpdated;
     }
-
-    // ==================== MONITOR EVENTS ====================
 
     private void OnSpeedUpdated(double downloadMBps, double uploadMBps)
     {
@@ -150,15 +140,11 @@ public class HomeViewModel : INotifyPropertyChanged
         return $"{mbps:F1} MB/s";
     }
 
-    // ==================== LOGGING ====================
-
     public void AddLog(string message)
     {
         Logs.Insert(0, $"[{DateTime.Now:HH:mm:ss}] {message}");
         while (Logs.Count > 100) Logs.RemoveAt(Logs.Count - 1);
     }
-
-    // ==================== RESET ====================
 
     public void ResetState()
     {

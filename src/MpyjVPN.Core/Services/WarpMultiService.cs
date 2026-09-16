@@ -38,40 +38,114 @@ public class WarpMultiService
     }
 
     public async Task<bool> EnsureWarpReadyAsync()
+{
+    try
     {
-        try
+        var warpCli = GetWarpCliPath();
+
+        if (!File.Exists(warpCli))
         {
-            var warpCli = GetWarpCliPath();
-
-            if (!File.Exists(warpCli))
-            {
-                LogMessage?.Invoke("⚠️ WARP Client not found", "warning");
-                return false;
-            }
-
-            LogMessage?.Invoke("🔧 Preparing WARP...", "info");
-
-            // ۱. ثبت‌نام (اگه قبلاً انجام نشده)
-            await RunWarpCliAsync(warpCli, "registration new --accept-tos");
-            await Task.Delay(1000);
-
-            // ۲. تغییر پروتکل به WireGuard (حل مشکل MASQUE تو ایران)
-            await RunWarpCliAsync(warpCli, "tunnel protocol set WireGuard");
-            await Task.Delay(500);
-
-            // ۳. تنظیم حالت Traffic and DNS + DoH
-            await RunWarpCliAsync(warpCli, "mode warp+doh");
-            await Task.Delay(500);
-
-            LogMessage?.Invoke("✅ WARP ready", "success");
-            return true;
-        }
-        catch (Exception ex)
-        {
-            LogMessage?.Invoke($"⚠️ WARP setup failed: {ex.Message}", "warning");
+            LogMessage?.Invoke("⚠️ WARP Client not found", "warning");
             return false;
         }
+
+        LogMessage?.Invoke("🔧 Preparing WARP...", "info");
+
+        // ۱. ثبت‌نام (اگه قبلاً انجام نشده)
+        await RunWarpCliAsync(warpCli, "registration new --accept-tos");
+        await Task.Delay(1000);
+
+        // ۲. تغییر پروتکل به WireGuard (حل مشکل MASQUE تو ایران)
+        await RunWarpCliAsync(warpCli, "tunnel protocol set WireGuard");
+        await Task.Delay(500);
+
+        // ۳. تنظیم حالت Traffic and DNS + DoH
+        await RunWarpCliAsync(warpCli, "mode warp+doh");
+        await Task.Delay(500);
+
+        // ۴. چک کن WARP وصل هست یا نه
+        var isConnected = await CheckWarpStatusAsync(warpCli);
+
+        if (!isConnected)
+        {
+            LogMessage?.Invoke("🔌 WARP not connected, connecting...", "info");
+
+            // ۵. اتصال با Retry (چون بار اول ممکنه وصل نشه)
+            for (int i = 0; i < 5; i++)
+            {
+                LogMessage?.Invoke($"🔄 WARP connect attempt {i + 1}/5...", "info");
+
+                await RunWarpCliAsync(warpCli, "connect");
+                await Task.Delay(5000);
+
+                isConnected = await CheckWarpStatusAsync(warpCli);
+
+                if (isConnected)
+                {
+                    LogMessage?.Invoke("✅ WARP Connected", "success");
+                    break;
+                }
+
+                // اگه وصل نشد، disconnect و دوباره connect
+                await RunWarpCliAsync(warpCli, "disconnect");
+                await Task.Delay(2000);
+            }
+
+            if (!isConnected)
+            {
+                LogMessage?.Invoke("❌ WARP connection failed after 5 attempts", "error");
+                return false;
+            }
+        }
+        else
+        {
+            LogMessage?.Invoke("✅ WARP already connected", "success");
+        }
+
+        LogMessage?.Invoke("✅ WARP ready", "success");
+        return true;
     }
+    catch (Exception ex)
+    {
+        LogMessage?.Invoke($"⚠️ WARP setup failed: {ex.Message}", "warning");
+        return false;
+    }
+}
+
+private async Task<bool> CheckWarpStatusAsync(string warpCli)
+{
+    try
+    {
+        var psi = new ProcessStartInfo
+        {
+            FileName = warpCli,
+            Arguments = "status",
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true
+        };
+
+        using var process = Process.Start(psi);
+        if (process == null) return false;
+
+        string output = await process.StandardOutput.ReadToEndAsync();
+        string error = await process.StandardError.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        var combined = output + error;
+
+        return combined.Contains("Connected", StringComparison.OrdinalIgnoreCase)
+            && !combined.Contains("Connecting")
+            && !combined.Contains("Disconnected");
+    }
+    catch
+    {
+        return false;
+    }
+}
+
+
 
     private async Task RunWarpCliAsync(string cliPath, string args)
     {
