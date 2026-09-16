@@ -5,41 +5,21 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    
-    <!-- Performance Optimization -->
-    <PublishReadyToRun>true</PublishReadyToRun>
-    <TieredCompilation>true</TieredCompilation>
-    <TieredPGO>true</TieredPGO>
-    <ServerGarbageCollection>false</ServerGarbageCollection>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.2.1" />
     <PackageReference Include="Avalonia.Desktop" Version="11.2.1" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.1" />
-    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.1" />
   </ItemGroup>
 
-  <!-- ✅ رفع آسیب‌پذیری CVE-2026-39959 -->
   <ItemGroup>
-    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
+    <ProjectReference Include="..\MpyjVPN.UI\MpyjVPN.UI.csproj" />
   </ItemGroup>
-  
-  <!-- ✅ Assets (آیکون Tray) -->
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-  
-  <!-- ✅ کپی خودکار پوشه cli به output -->
+
+  <!-- کپی خودکار پوشه cli به output -->
   <ItemGroup>
     <Content Include="cli\**\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <Link>cli\%(RecursiveDir)%(Filename)%(Extension)</Link>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\MpyjVPN.Application\MpyjVPN.Application.csproj" />
-    <ProjectReference Include="..\MpyjVPN.Infrastructure\MpyjVPN.Infrastructure.csproj" />
   </ItemGroup>
 </Project>

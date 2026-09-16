@@ -1,0 +1,35 @@
+﻿name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install Android Workload
+        run: dotnet workload install android
+
+      - name: Install Android SDK Dependencies
+        run: dotnet build src/MpyjVPN.Android -c Release -t:InstallAndroidDependencies -f net10.0-android -p:AndroidSdkDirectory="${{ env.ANDROID_HOME }}" -p:AcceptAndroidSDKLicenses=True
+
+      - name: Build Android APK
+        run: dotnet publish src/MpyjVPN.Android -c Release -f net10.0-android -o dist/android
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MpyjVPN-Android-APK
+          path: dist/android/*.apk
+          retention-days: 30

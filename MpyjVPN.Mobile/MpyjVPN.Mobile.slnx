@@ -1,0 +1,11 @@
+﻿<Solution>
+  <Project Path="MpyjVPN.Mobile.Android/MpyjVPN.Mobile.Android.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="MpyjVPN.Mobile.Browser/MpyjVPN.Mobile.Browser.csproj" />
+  <Project Path="MpyjVPN.Mobile.Desktop/MpyjVPN.Mobile.Desktop.csproj" />
+  <Project Path="MpyjVPN.Mobile.iOS/MpyjVPN.Mobile.iOS.csproj">
+    <Deploy />
+  </Project>
+  <Project Path="MpyjVPN.Mobile/MpyjVPN.Mobile.csproj" />
+</Solution>

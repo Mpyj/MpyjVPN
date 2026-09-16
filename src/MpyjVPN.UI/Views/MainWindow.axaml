@@ -1,0 +1,99 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:MpyjVPN.Application.ViewModels;assembly=MpyjVPN.Application"
+        xmlns:local="clr-namespace:MpyjVPN.UI.Controls"
+        xmlns:home="clr-namespace:MpyjVPN.UI.Views.Home"
+        xmlns:protocols="clr-namespace:MpyjVPN.UI.Views.Protocols"
+        xmlns:diagnostics="clr-namespace:MpyjVPN.UI.Views.Diagnostics"
+        xmlns:settings="clr-namespace:MpyjVPN.UI.Views.Settings"
+        x:Class="MpyjVPN.UI.Views.MainWindow"
+        x:CompileBindings="False"
+        Title="Mpyj VPN"
+        Width="1100" Height="750"
+        MinWidth="900" MinHeight="650"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource BgBrush}"
+        TransparencyLevelHint="Mica"
+        FontFamily="Segoe UI Emoji, Segoe UI">
+
+    <Grid ColumnDefinitions="240,*">
+
+        <!-- SIDEBAR -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource SidebarBgBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="0,0,1,0">
+            <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+                <StackPanel Grid.Row="0" Orientation="Horizontal"
+                            Spacing="12" Margin="20,20,20,30">
+                    <Border Width="44" Height="44" CornerRadius="12"
+                            Background="{DynamicResource CyanBrush}">
+                        <TextBlock Text="⚡" FontSize="22" Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="MPYJ" FontSize="18" FontWeight="Bold"
+                                   Foreground="{DynamicResource CyanBrush}"
+                                   LetterSpacing="2"/>
+                        <TextBlock Text="VPN" FontSize="10"
+                                   Foreground="{DynamicResource TextMutedBrush}"
+                                   LetterSpacing="3"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1" Spacing="4" Margin="12,0">
+                    <Button x:Name="NavHome" Classes="NavItem Active"
+                            Content="🏠  Home" Click="OnNavClick" Tag="home"/>
+                    <Button x:Name="NavProtocols" Classes="NavItem"
+                            Content="🔓  Protocols" Click="OnNavClick" Tag="protocols"/>
+                    <Button x:Name="NavDiagnostics" Classes="NavItem"
+                            Content="📊  Diagnostics" Click="OnNavClick" Tag="diagnostics"/>
+                    <Button x:Name="NavSettings" Classes="NavItem"
+                            Content="⚙️  Settings" Click="OnNavClick" Tag="settings"/>
+                </StackPanel>
+
+                <Border Grid.Row="3" Margin="12,0,12,12" Padding="12"
+                        CornerRadius="10" Background="{DynamicResource SurfaceBrush}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse x:Name="SidebarStatusDot" Width="8" Height="8"
+                                 Fill="{DynamicResource TextMutedBrush}"
+                                 VerticalAlignment="Center"/>
+                        <TextBlock x:Name="SidebarStatusText" Text="Disconnected"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource TextDimBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+
+        <!-- MAIN CONTENT -->
+        <Grid Grid.Column="1">
+            <ScrollViewer>
+                <StackPanel Margin="32" Spacing="24">
+
+                    <StackPanel x:Name="PageHome" IsVisible="True">
+                        <home:HomeView x:Name="HomeViewControl"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PageProtocols" IsVisible="False">
+                        <protocols:ProtocolsView x:Name="ProtocolsViewControl"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PageDiagnostics" IsVisible="False">
+                        <diagnostics:DiagnosticsView x:Name="DiagnosticsViewControl"/>
+                    </StackPanel>
+
+                    <StackPanel x:Name="PageSettings" IsVisible="False">
+                        <settings:SettingsView x:Name="SettingsViewControl"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+
+    </Grid>
+</Window>
