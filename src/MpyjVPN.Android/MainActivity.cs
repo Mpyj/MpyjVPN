@@ -3,7 +3,7 @@ using Android.Content.PM;
 using Avalonia;
 using Avalonia.Android;
 
-namespace MpyjVPN.Android;
+namespace MpyjVPN.Mobile.Android;
 
 [Activity(
     Label = "MpyjVPN",
@@ -11,7 +11,7 @@ namespace MpyjVPN.Android;
     Icon = "@drawable/icon",
     MainLauncher = true,
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
-public class MainActivity : AvaloniaMainActivity<MpyjVPN.Avalonia.App>
+public class MainActivity : AvaloniaMainActivity<MpyjVPN.UI.App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {
