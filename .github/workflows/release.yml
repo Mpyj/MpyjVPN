@@ -19,15 +19,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r win-x64 --self-contained true -o dist/publish-normal
-
       - name: Install Inno Setup
         run: choco install innosetup -y
         shell: cmd
@@ -35,7 +32,6 @@ jobs:
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" build\setup.iss
         shell: pwsh
-
       - name: Rename Installer
         shell: pwsh
         run: |
@@ -44,13 +40,11 @@ jobs:
           if ($installer) {
             Move-Item $installer.FullName "dist/MpyjVPN-v$version-Windows-Setup.exe" -Force
           }
-
       - name: Create Portable ZIP
         shell: pwsh
         run: |
           $version = "${{ github.ref_name }}" -replace '^v', ''
           Compress-Archive -Path "dist/publish-normal/*" -DestinationPath "dist/MpyjVPN-v$version-Windows-Portable.zip" -Force
-
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
@@ -68,18 +62,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libice6 libsm6 libfontconfig1
-
       - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-x64 --self-contained true -o dist/publish-linux-x64
-
       - name: Create Tarball
         run: |
           version="${{ github.ref_name }}"
@@ -88,7 +78,6 @@ jobs:
           cd dist/publish-linux-x64
           tar -czvf "../MpyjVPN-v${version}-Linux-x64.tar.gz" *
           cd ../..
-
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
@@ -104,18 +93,14 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libice6 libsm6 libfontconfig1
-
       - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r linux-arm64 --self-contained true -o dist/publish-linux-arm64
-
       - name: Create Tarball
         run: |
           version="${{ github.ref_name }}"
@@ -124,7 +109,6 @@ jobs:
           cd dist/publish-linux-arm64
           tar -czvf "../MpyjVPN-v${version}-Linux-ARM64.tar.gz" *
           cd ../..
-
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
@@ -140,15 +124,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r osx-x64 --self-contained true -o dist/publish-macos-x64
-
       - name: Create Tarball
         run: |
           version="${{ github.ref_name }}"
@@ -157,7 +138,6 @@ jobs:
           cd dist/publish-macos-x64
           tar -czvf "../MpyjVPN-v${version}-macOS-x64.tar.gz" *
           cd ../..
-
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
@@ -173,15 +153,12 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
-
       - name: Publish UI
         run: dotnet publish src/MpyjVPN.Avalonia -c Release -r osx-arm64 --self-contained true -o dist/publish-macos-arm64
-
       - name: Create Tarball
         run: |
           version="${{ github.ref_name }}"
@@ -190,11 +167,43 @@ jobs:
           cd dist/publish-macos-arm64
           tar -czvf "../MpyjVPN-v${version}-macOS-ARM64.tar.gz" *
           cd ../..
-
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/MpyjVPN-*-macOS-ARM64.tar.gz
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release-android:
+    name: Release Android (APK)
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: Install Android Workload
+        run: dotnet workload install android
+      - name: Install Android SDK Dependencies
+        run: dotnet build src/MpyjVPN.Android -c Release -t:InstallAndroidDependencies -f net10.0-android -p:AndroidSdkDirectory="${{ env.ANDROID_HOME }}" -p:AcceptAndroidSDKLicenses=True
+      - name: Build Android APK
+        run: dotnet publish src/MpyjVPN.Android -c Release -f net10.0-android -o dist/android
+      - name: Rename APK
+        shell: pwsh
+        run: |
+          $version = "${{ github.ref_name }}" -replace '^v', ''
+          $apk = Get-ChildItem "dist/android/*.apk" | Select-Object -First 1
+          if ($apk) {
+            Move-Item $apk.FullName "dist/MpyjVPN-v$version-Android.apk" -Force
+          }
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/MpyjVPN-*-Android.apk
           tag_name: ${{ github.ref_name }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
